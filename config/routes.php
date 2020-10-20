@@ -77,6 +77,11 @@ $routes->scope('/', function (RouteBuilder $builder) {
                 'method' => ['POST'],
                 'path' => '/buy/{id}',
             ],
+            'create' => [
+                'action' => 'create',
+                'method' => ['POST'],
+                'path' => '/create',
+            ]
         ]
     ]);
     $builder->resources('Categories');

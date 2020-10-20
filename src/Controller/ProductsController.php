@@ -120,4 +120,13 @@ class ProductsController extends AppController
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
     }
+
+    public function create(){
+        $ownerId = $this->Authentication->getResult()->getData()->get('id');
+        $product = $this->Products->createProduct($this->request->getData(), $ownerId);
+        $error = $product->getErrors();
+        $this->set(compact('product'));
+        $this->set('_serialize', ['product']);
+
+    }
 }

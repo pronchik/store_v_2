@@ -98,10 +98,6 @@ class ProductsTable extends Table
             ->requirePresence('name', 'create')
             ->notEmptyString('name');
 
-        $validator
-            ->dateTime('add_date')
-            ->requirePresence('add_date', 'create')
-            ->notEmptyDateTime('add_date');
 
         return $validator;
     }
@@ -148,4 +144,11 @@ class ProductsTable extends Table
         }
     }
 
+    public function createProduct($data, $ownerId){
+        $product = $this->newEntity($data);
+        $product->seller_user_id = $ownerId;
+        $product->status_id = 1;
+        $this->save($product);
+        return $product;
+    }
 }

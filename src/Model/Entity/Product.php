@@ -39,7 +39,6 @@ class Product extends Entity
         'category_id' => true,
         'price' => true,
         'seller_user_id' => true,
-        'add_date' => true,
         'buyer_user_id' => true,
         'status_id' => true,
         'name' => true,
@@ -53,7 +52,5 @@ class Product extends Entity
         'modified' ,
         'user',
         'actions'
-
-
     ];
 }
