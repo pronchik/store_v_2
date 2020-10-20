@@ -16,7 +16,9 @@ declare(strict_types=1);
  */
 namespace App\Controller;
 
+use Authentication\Controller\Component\AuthenticationComponent;
 use Cake\Controller\Controller;
+use Cake\View\JsonView;
 
 /**
  * Application Controller
@@ -25,6 +27,8 @@ use Cake\Controller\Controller;
  * will inherit them.
  *
  * @link https://book.cakephp.org/4/en/controllers.html#the-app-controller
+ *
+ * @property AuthenticationComponent $Authentication
  */
 class AppController extends Controller
 {
@@ -42,7 +46,10 @@ class AppController extends Controller
         parent::initialize();
 
         $this->loadComponent('RequestHandler');
-        $this->loadComponent('Flash');
+        $this->loadComponent('Authentication.Authentication', [
+            'requireIdentity' => true
+        ]);
+        $this->viewBuilder()->setClassName(JsonView::class);
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.

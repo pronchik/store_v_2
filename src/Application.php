@@ -16,6 +16,11 @@ declare(strict_types=1);
  */
 namespace App;
 
+use App\Middleware\CustomMiddleware;
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Core\Configure;
 use Cake\Core\Exception\MissingPluginException;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
@@ -25,6 +30,7 @@ use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -32,7 +38,7 @@ use Cake\Routing\Middleware\RoutingMiddleware;
  * This defines the bootstrapping logic and middleware layers you
  * want to use in your application.
  */
-class Application extends BaseApplication
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 {
     /**
      * Load all the application configuration and bootstrap logic.
@@ -59,6 +65,29 @@ class Application extends BaseApplication
         // Load more plugins here
     }
 
+    public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface {
+        $service = new AuthenticationService();
+        $authFields = [
+            'username' => 'email',
+            'password' => 'password'
+        ];
+        $service->loadIdentifier('Authentication.Password', [
+            'fields' => $authFields
+        ]);
+        $service->loadAuthenticator('Authentication.Form', [
+            'fields' => $authFields
+        ]);
+
+        $service->loadIdentifier('Authentication.JwtSubject');
+        $service->loadAuthenticator('Authentication.Jwt', [
+            'secretKey'     => file_get_contents(CONFIG . '/jwt.pem'),
+            'algorithms'    => ['RS256'],
+            'returnPayload' => false
+        ]);
+
+        return $service;
+    }
+
     /**
      * Setup the middleware queue your application will use.
      *
@@ -71,6 +100,7 @@ class Application extends BaseApplication
             // Catch any exceptions in the lower layers,
             // and make an error page/response
             ->add(new ErrorHandlerMiddleware(Configure::read('Error')))
+            ->add(new BodyParserMiddleware())
 
             // Handle plugin/theme assets like CakePHP normally does.
             ->add(new AssetMiddleware([
@@ -88,13 +118,8 @@ class Application extends BaseApplication
             // Parse various types of encoded request bodies so that they are
             // available as array through $request->getData()
             // https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
-            ->add(new BodyParserMiddleware())
-
-            // Cross Site Request Forgery (CSRF) Protection Middleware
-            // https://book.cakephp.org/4/en/controllers/middleware.html#cross-site-request-forgery-csrf-middleware
-            ->add(new CsrfProtectionMiddleware([
-                'httponly' => true,
-            ]));
+            ->add(new AuthenticationMiddleware($this))
+            ->add(new CustomMiddleware());
 
         return $middlewareQueue;
     }

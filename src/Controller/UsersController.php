@@ -3,19 +3,28 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Http\Exception\BadRequestException;
+use App\Model\Entity\User;
+use App\Model\Table\UsersTable;
+use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Datasource\ResultSetInterface;
+use Cake\Http\Response;
+use Firebase\JWT\JWT;
+
 /**
  * Users Controller
  *
- * @property \App\Model\Table\UsersTable $Users
- * @method \App\Model\Entity\User[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @property UsersTable $Users
+ * @method User[]|ResultSetInterface paginate($object = null, array $settings = [])
  */
 class UsersController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
+
+    public function initialize(): void {
+        parent::initialize();
+        $this->Authentication->addUnauthenticatedActions(['login']);
+    }
+
     public function index()
     {
         $this->paginate = [
@@ -24,15 +33,9 @@ class UsersController extends AppController
         $users = $this->paginate($this->Users);
 
         $this->set(compact('users'));
+        $this->set('_serialize', ['users']);
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
         $user = $this->Users->get($id, [
@@ -40,71 +43,78 @@ class UsersController extends AppController
         ]);
 
         $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
+
+    public function add() {
         $user = $this->Users->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+        $user = $this->Users->patchEntity($user, $this->request->getData());
+        $user->password = $this->request->getData('password');
+        if (!$this->Users->save($user)) {
+            throw new BadRequestException($user->getErrors());
         }
-        $roles = $this->Users->Roles->find('list', ['limit' => 200]);
-        $this->set(compact('user', 'roles'));
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
+
+    public function edit($id = null) {
         $user = $this->Users->get($id, [
             'contain' => [],
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+        $user = $this->Users->patchEntity($user, $this->request->getData());
+        if (!$this->Users->save($user)) {
+            throw new BadRequestException($user->getErrors());
         }
-        $roles = $this->Users->Roles->find('list', ['limit' => 200]);
-        $this->set(compact('user', 'roles'));
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null|void Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
+    public function delete($id = null) {
         $user = $this->Users->get($id);
-        if ($this->Users->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
-        } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+        if (!$this->Users->delete($user)) {
+            throw new BadRequestException([], 'Cant delete this');
         }
+        $response = 'ok';
+        $this->set(compact('response'));
+        $this->set('_serialize', ['response']);
+    }
 
-        return $this->redirect(['action' => 'index']);
+    public function login() {
+        $result = $this->Authentication->getResult();
+        if ($result->isValid()) {
+            $privateKey = file_get_contents(CONFIG . '/jwt.key');
+            $user = $result->getData();
+            $payload = [
+                'iss' => 'store.local',
+                'sub' => $user->id,
+                'exp' => time() + 5000,
+            ];
+            $json = [
+                'token' => JWT::encode($payload, $privateKey, 'RS256'),
+            ];
+        } else {
+            $this->response = $this->response->withStatus(401);
+            $json = ['fail'];
+        }
+        $this->set(compact('json'));
+        $this->viewBuilder()->setOption('serialize', 'json');
+    }
+
+    public function myAccount(){
+        $user = $this->Authentication->getResult()->getData();
+
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
+    }
+
+    public function updateBalance(){
+        $user = $this->Authentication->getResult()->getData();
+        $amount = $this->request->getData('amount');
+        $response = $this->Users->updateBalance($user,$amount);
+        $this->set(compact('response'));
+        $this->set('_serialize', ['response']);
     }
 }
+

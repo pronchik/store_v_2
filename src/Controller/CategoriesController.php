@@ -12,7 +12,7 @@ namespace App\Controller;
 class CategoriesController extends AppController
 {
     /**
-     * Index method
+     * Index method$this->set('_serialize', ['categories']);
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
@@ -21,6 +21,7 @@ class CategoriesController extends AppController
         $categories = $this->paginate($this->Categories);
 
         $this->set(compact('categories'));
+        $this->set('_serialize', ['categories']);
     }
 
     /**

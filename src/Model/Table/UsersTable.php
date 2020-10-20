@@ -115,4 +115,10 @@ class UsersTable extends Table
 
         return $rules;
     }
+    public function updateBalance($user,$amount){
+        $user->balance += $amount;
+        $this->save($user);
+
+        return 'Вы пополнили на '.$amount.' теперь у вас '. $user->balance;
+    }
 }

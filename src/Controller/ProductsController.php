@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Http\Exception\BadRequestException;
+
 /**
  * Products Controller
  *
@@ -24,7 +26,9 @@ class ProductsController extends AppController
         $products = $this->paginate($this->Products);
 
         $this->set(compact('products'));
+        $this->set('_serialize', ['products']);
     }
+
 
     /**
      * View method
@@ -77,19 +81,12 @@ class ProductsController extends AppController
         $product = $this->Products->get($id, [
             'contain' => [],
         ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $product = $this->Products->patchEntity($product, $this->request->getData());
-            if ($this->Products->save($product)) {
-                $this->Flash->success(__('The product has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The product could not be saved. Please, try again.'));
+        $product = $this->Products->patchEntity($product,$this->request->getData());
+        if (!$this->Products->save($product)) {
+            throw new BadRequestException($product->getErrors());
         }
-        $categories = $this->Products->Categories->find('list', ['limit' => 200]);
-        $users = $this->Products->Users->find('list', ['limit' => 200]);
-        $statuses = $this->Products->Statuses->find('list', ['limit' => 200]);
-        $this->set(compact('product', 'categories', 'users', 'statuses'));
+        $this->set(compact('product'));
+        $this->set('_serialize', ['product']);
     }
 
     /**
@@ -110,5 +107,17 @@ class ProductsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function buyProduct($id){
+        $newOwner = $this->Authentication->getResult()->getData();
+        $newOwnerId = $newOwner->get('id');
+        $product = $this->Products->get($id, [
+            'contain' => ['Categories', 'Users', 'Statuses', 'Actions'],
+        ]);
+        $seller = $product->get('user');
+        $response = $this->Products->changeOwner($product, $newOwnerId,$newOwner,$seller);
+        $this->set(compact('response'));
+        $this->set('_serialize', ['response']);
     }
 }

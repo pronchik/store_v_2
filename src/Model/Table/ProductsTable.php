@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use App\Controller\ActionsController;
+use App\Controller\UsersController;
+use App\Model\Entity\Product;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -12,7 +15,6 @@ use Cake\Validation\Validator;
  * Products Model
  *
  * @property \App\Model\Table\CategoriesTable&\Cake\ORM\Association\BelongsTo $Categories
- * @property \App\Model\Table\UsersTable&\Cake\ORM\Association\BelongsTo $Users
  * @property \App\Model\Table\UsersTable&\Cake\ORM\Association\BelongsTo $Users
  * @property \App\Model\Table\StatusesTable&\Cake\ORM\Association\BelongsTo $Statuses
  * @property \App\Model\Table\ActionsTable&\Cake\ORM\Association\HasMany $Actions
@@ -46,7 +48,7 @@ class ProductsTable extends Table
         parent::initialize($config);
 
         $this->setTable('products');
-        $this->setDisplayField('name');
+        $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
@@ -61,6 +63,9 @@ class ProductsTable extends Table
         ]);
         $this->belongsTo('Users', [
             'foreignKey' => 'buyer_user_id',
+        ]);
+        $this->belongsTo('Users', [
+            'foreignKey' => 'seller_user_id',
         ]);
         $this->belongsTo('Statuses', [
             'foreignKey' => 'status_id',
@@ -84,19 +89,19 @@ class ProductsTable extends Table
             ->allowEmptyString('id', null, 'create');
 
         $validator
-            ->decimal('price')
+            ->scalar('price')
             ->requirePresence('price', 'create')
             ->notEmptyString('price');
-
-        $validator
-            ->dateTime('add_date')
-            ->requirePresence('add_date', 'create')
-            ->notEmptyDateTime('add_date');
 
         $validator
             ->scalar('name')
             ->requirePresence('name', 'create')
             ->notEmptyString('name');
+
+        $validator
+            ->dateTime('add_date')
+            ->requirePresence('add_date', 'create')
+            ->notEmptyDateTime('add_date');
 
         return $validator;
     }
@@ -117,4 +122,30 @@ class ProductsTable extends Table
 
         return $rules;
     }
+
+    public function changeOwner($productId,$userId,$user,$seller){
+        if($userId == $productId->seller_user_id){
+            return 'You cant buy your product';
+        }
+        elseif ($user->balance < $productId->price){
+            return 'You have not enough money';
+        }
+        elseif($productId->status_id == 2){
+            return 'This product was sold';
+        }
+        else{
+            $productId->buyer_user_id = $userId; //
+            $productId->status_id = 2;           // делаем статус 'Sold'
+
+            $user->balance = $user->balance - $productId->price; //вычитаем из баланса стоимость продукта
+
+            $seller->balance = $seller->balance + ($productId->price * 0.95);
+            $this->save($productId);
+            $this->Users->save($user);
+            $this->Users->save($seller);
+
+            return 'Вы купили '.$productId->name.' за '.$productId->price;
+        }
+    }
+
 }
