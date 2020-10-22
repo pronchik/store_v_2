@@ -151,4 +151,14 @@ class ProductsTable extends Table
         $this->save($product);
         return $product;
     }
+    public function deleted($product,$user){
+        if($product->seller_user_id == $user && $product->status_id == 1){
+            $product->deleted = date("F j, Y, g:i a");
+            $this->save($product);
+            return 'Deleted';
+        }
+        else{
+            return 'NOT Deleted';
+        }
+    }
 }

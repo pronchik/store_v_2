@@ -47,6 +47,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
      */
     public function bootstrap(): void
     {
+        $this->addPlugin('Search');
+
         // Call parent to load bootstrap from files.
         parent::bootstrap();
 

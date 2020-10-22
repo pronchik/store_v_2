@@ -63,7 +63,17 @@ $routes->scope('/', function (RouteBuilder $builder) {
                 'action' => 'updateBalance',
                 'method' => ['PUT'],
                 'path' => '/my/update_balance'
-            ]
+            ],
+            'deleted' => [
+                'action' => 'deleted',
+                'method' => ['POST'],
+                'path' => '/my/delete'
+            ],
+            'register' => [
+                'action' => 'register',
+                'method' => ['POST'],
+                'path' => '/register'
+            ],
         ]
     ]);
     $builder->resources('Roles');
@@ -81,6 +91,11 @@ $routes->scope('/', function (RouteBuilder $builder) {
                 'action' => 'create',
                 'method' => ['POST'],
                 'path' => '/create',
+            ],
+            'deleted' => [
+                'action' => 'deleted',
+                'method' => ['POST'],
+                'path' => '/{id}/delete'
             ]
         ]
     ]);

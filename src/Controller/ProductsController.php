@@ -96,7 +96,7 @@ class ProductsController extends AppController
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    /*public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $product = $this->Products->get($id);
@@ -107,7 +107,7 @@ class ProductsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
-    }
+    }*/
 
     public function buyProduct($id){
         $newOwner = $this->Authentication->getResult()->getData();
@@ -127,6 +127,15 @@ class ProductsController extends AppController
         $error = $product->getErrors();
         $this->set(compact('product'));
         $this->set('_serialize', ['product']);
+    }
 
+    public function deleted($id){
+        $userId = $this->Authentication->getResult()->getData()->get('id');
+        $product = $this->Products->get($id, [
+            'contain' => ['Categories', 'Users', 'Statuses', 'Actions'],
+        ]);
+        $response = $this->Products->deleted($product,$userId);
+        $this->set(compact('response'));
+        $this->set('_serialize', ['response']);
     }
 }

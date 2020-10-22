@@ -17,6 +17,7 @@ use Cake\ORM\Entity;
  * @property int $status_id
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
+ * @property \Cake\I18n\FrozenTime|null $deleted
  * @property string $name
  *
  * @property \App\Model\Entity\Category $category
@@ -44,6 +45,7 @@ class Product extends Entity
         'name' => true,
         'category' => true,
         'status' => true,
+        'deleted' => true,
 
     ];
 

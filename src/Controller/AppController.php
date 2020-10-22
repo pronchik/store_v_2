@@ -32,15 +32,7 @@ use Cake\View\JsonView;
  */
 class AppController extends Controller
 {
-    /**
-     * Initialization hook method.
-     *
-     * Use this method to add common initialization code like loading components.
-     *
-     * e.g. `$this->loadComponent('FormProtection');`
-     *
-     * @return void
-     */
+
     public function initialize(): void
     {
         parent::initialize();

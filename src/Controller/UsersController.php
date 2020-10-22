@@ -23,6 +23,7 @@ class UsersController extends AppController
     public function initialize(): void {
         parent::initialize();
         $this->Authentication->addUnauthenticatedActions(['login']);
+        $this->Authentication->addUnauthenticatedActions(['register']);
     }
 
     public function index()
@@ -47,10 +48,12 @@ class UsersController extends AppController
     }
 
 
-    public function add() {
+    public function register() {
         $user = $this->Users->newEmptyEntity();
         $user = $this->Users->patchEntity($user, $this->request->getData());
         $user->password = $this->request->getData('password');
+        $user->role_id = 1;
+        $user->email = $this->request->getData('email');// email for registration
         if (!$this->Users->save($user)) {
             throw new BadRequestException($user->getErrors());
         }
@@ -71,7 +74,7 @@ class UsersController extends AppController
         $this->set('_serialize', ['user']);
     }
 
-    public function delete($id = null) {
+    /*public function delete($id = null) {
         $user = $this->Users->get($id);
         if (!$this->Users->delete($user)) {
             throw new BadRequestException([], 'Cant delete this');
@@ -79,11 +82,14 @@ class UsersController extends AppController
         $response = 'ok';
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
-    }
+    }*/
+
+
 
     public function login() {
         $result = $this->Authentication->getResult();
-        if ($result->isValid()) {
+        $deleted = $this->Authentication->getResult()->getData()->get('deleted');
+        if ($result->isValid() && $deleted == null) {
             $privateKey = file_get_contents(CONFIG . '/jwt.key');
             $user = $result->getData();
             $payload = [
@@ -103,7 +109,9 @@ class UsersController extends AppController
     }
 
     public function myAccount(){
-        $user = $this->Authentication->getResult()->getData();
+        $user = $this->Users->find('all',  array(
+            'conditions' => array('Users.role_id' => '3'),
+        ));
 
         $this->set(compact('user'));
         $this->set('_serialize', ['user']);
@@ -116,5 +124,20 @@ class UsersController extends AppController
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
     }
+
+    public function deleted(){
+        $user = $this->Authentication->getResult()->getData();
+        $response = $this->Users->deleted($user);
+        $this->set(compact('response'));
+        $this->set('_serialize', ['response']);
+    }
+
+    /*public function register(){
+        //$user = $this->request->getData();
+        $user = $this->Users->register($this->request->getData());
+        $user->email = $this->request->getData('email');
+        $this->set(compact('email'));
+        $this->set('_serialize', ['email']);
+    }*/
 }
 

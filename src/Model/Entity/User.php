@@ -37,11 +37,11 @@ class User extends Entity
     protected $_accessible = [
         'first_name' => true,
         'second_name' => true,
-        'email' => true,
+        'email' => false,
         'birth_date' => true,
         'password' => true,
         'balance' => true,
-        'role_id' => true,
+        'role' => false,
     ];
 
     /**
@@ -53,7 +53,6 @@ class User extends Entity
         'password',
         'created' ,
         'modified' ,
-        'role',
         'role_id',
         'deleted'
     ];

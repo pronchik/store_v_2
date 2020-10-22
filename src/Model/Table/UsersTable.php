@@ -115,10 +115,22 @@ class UsersTable extends Table
 
         return $rules;
     }
+
+    public function register($data){
+        $user = $this->newEntity($data);
+        $this->save($user);
+        return $user;
+    }
     public function updateBalance($user,$amount){
         $user->balance += $amount;
         $this->save($user);
 
         return 'Вы пополнили на '.$amount.' теперь у вас '. $user->balance;
+    }
+
+    public function deleted($user){
+        $user->deleted = date("F j, Y, g:i a");
+        $this->save($user);
+        return 'Deleted';
     }
 }
