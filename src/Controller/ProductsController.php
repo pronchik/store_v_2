@@ -116,7 +116,11 @@ class ProductsController extends AppController
             'contain' => ['Categories', 'Users', 'Statuses', 'Actions'],
         ]);
         $seller = $product->get('user');
-        $response = $this->Products->changeOwner($product, $newOwnerId,$newOwner,$seller);
+        $admin = $this->Users->find()
+            ->select(['id','balance'])
+            ->where(['Users.role_id' => '3'])
+            ->first();
+        $response = $this->Products->changeOwner($product, $newOwnerId,$newOwner,$seller,$admin);
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
     }

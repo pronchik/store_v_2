@@ -119,7 +119,7 @@ class ProductsTable extends Table
         return $rules;
     }
 
-    public function changeOwner($productId,$userId,$user,$seller){
+    public function changeOwner($productId,$userId,$user,$seller,$admin){
         if($userId == $productId->seller_user_id){
             return 'You cant buy your product';
         }
@@ -136,8 +136,11 @@ class ProductsTable extends Table
             $user->balance = $user->balance - $productId->price; //вычитаем из баланса стоимость продукта
 
             $seller->balance = $seller->balance + ($productId->price * 0.95);
+            $admin->balance = $admin->balance + ($productId->price * 0.05);
+
             $this->save($productId);
             $this->Users->save($user);
+            $this->Users->save($admin);
             $this->Users->save($seller);
 
             return 'Вы купили '.$productId->name.' за '.$productId->price;

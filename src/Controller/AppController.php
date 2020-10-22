@@ -42,6 +42,7 @@ class AppController extends Controller
             'requireIdentity' => true
         ]);
         $this->viewBuilder()->setClassName(JsonView::class);
+        $this->loadModel('Users');
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.
