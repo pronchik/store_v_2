@@ -6,10 +6,12 @@ namespace App\Model\Table;
 use App\Controller\ActionsController;
 use App\Controller\UsersController;
 use App\Model\Entity\Product;
+use App\Model\Filter\ProductsCollection;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Search\Model\Filter\Base;
 
 /**
  * Products Model
@@ -34,6 +36,8 @@ use Cake\Validation\Validator;
  * @method \App\Model\Entity\Product[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
+ *
+ * @mixin \Search\Model\Behavior\SearchBehavior
  */
 class ProductsTable extends Table
 {
@@ -52,6 +56,21 @@ class ProductsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Search.Search',[
+            'collectionClass' => ProductsCollection::class
+            ]);
+
+        /*$this->searchManager()
+            ->value('status_id')
+            ->add('q', 'Search.Like', [
+                'before' => true,
+                'after' => true,
+                'fieldMode' => 'OR',
+                'comparison' => 'LIKE',
+                'wildcardAny' => '*',
+                'wildcardOne' => '?',
+                'fields' => ['id', 'price'],
+            ]);*/
 
         $this->belongsTo('Categories', [
             'foreignKey' => 'category_id',

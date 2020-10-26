@@ -23,7 +23,8 @@ class ProductsController extends AppController
         $this->paginate = [
             'contain' => ['Categories', 'Users', 'Statuses'],
         ];
-        $products = $this->paginate($this->Products);
+        $products = $this->paginate($this->Products
+            ->find('search', ['search' => $this->request->getQueryParams()]));
 
         $this->set(compact('products'));
         $this->set('_serialize', ['products']);
