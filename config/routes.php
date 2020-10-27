@@ -74,6 +74,11 @@ $routes->scope('/', function (RouteBuilder $builder) {
                 'method' => ['POST'],
                 'path' => '/register'
             ],
+            'edit' => [
+                'action' => 'edit',
+                'method' => ['PUT'],
+                'path' => '/my/edit'
+            ]
         ]
     ]);
     $builder->resources('Roles');

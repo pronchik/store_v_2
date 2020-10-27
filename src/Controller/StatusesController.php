@@ -18,9 +18,17 @@ class StatusesController extends AppController
      */
     public function index()
     {
-        $statuses = $this->paginate($this->Statuses);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $statuses = $this->paginate($this->Statuses);
 
-        $this->set(compact('statuses'));
+            $this->set(compact('statuses'));
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -32,11 +40,20 @@ class StatusesController extends AppController
      */
     public function view($id = null)
     {
-        $status = $this->Statuses->get($id, [
-            'contain' => ['Products'],
-        ]);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $status = $this->Statuses->get($id, [
+                'contain' => ['Products'],
+            ]);
 
-        $this->set(compact('status'));
+            $this->set(compact('status'));
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
+
     }
 
     /**
@@ -46,17 +63,26 @@ class StatusesController extends AppController
      */
     public function add()
     {
-        $status = $this->Statuses->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $status = $this->Statuses->patchEntity($status, $this->request->getData());
-            if ($this->Statuses->save($status)) {
-                $this->Flash->success(__('The status has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
 
-                return $this->redirect(['action' => 'index']);
+            $status = $this->Statuses->newEmptyEntity();
+            if ($this->request->is('post')) {
+                $status = $this->Statuses->patchEntity($status, $this->request->getData());
+                if ($this->Statuses->save($status)) {
+                    $this->Flash->success(__('The status has been saved.'));
+
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The status could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The status could not be saved. Please, try again.'));
+            $this->set(compact('status'));
         }
-        $this->set(compact('status'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -68,19 +94,27 @@ class StatusesController extends AppController
      */
     public function edit($id = null)
     {
-        $status = $this->Statuses->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $status = $this->Statuses->patchEntity($status, $this->request->getData());
-            if ($this->Statuses->save($status)) {
-                $this->Flash->success(__('The status has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $status = $this->Statuses->get($id, [
+                'contain' => [],
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $status = $this->Statuses->patchEntity($status, $this->request->getData());
+                if ($this->Statuses->save($status)) {
+                    $this->Flash->success(__('The status has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The status could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The status could not be saved. Please, try again.'));
+            $this->set(compact('status'));
         }
-        $this->set(compact('status'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -92,14 +126,23 @@ class StatusesController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $status = $this->Statuses->get($id);
-        if ($this->Statuses->delete($status)) {
-            $this->Flash->success(__('The status has been deleted.'));
-        } else {
-            $this->Flash->error(__('The status could not be deleted. Please, try again.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $this->request->allowMethod(['post', 'delete']);
+            $status = $this->Statuses->get($id);
+            if ($this->Statuses->delete($status)) {
+                $this->Flash->success(__('The status has been deleted.'));
+            } else {
+                $this->Flash->error(__('The status could not be deleted. Please, try again.'));
+            }
+
+            return $this->redirect(['action' => 'index']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
         }
 
-        return $this->redirect(['action' => 'index']);
     }
 }

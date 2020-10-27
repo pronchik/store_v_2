@@ -13,6 +13,10 @@ use App\Http\Exception\BadRequestException;
  */
 class ProductsController extends AppController
 {
+    public function initialize(): void {
+        parent::initialize();
+        $this->Authentication->addUnauthenticatedActions(['index']);
+    }
     /**
      * Index method
      *
@@ -52,23 +56,6 @@ class ProductsController extends AppController
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
-    public function add()
-    {
-        $product = $this->Products->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $product = $this->Products->patchEntity($product, $this->request->getData());
-            if ($this->Products->save($product)) {
-                $this->Flash->success(__('The product has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The product could not be saved. Please, try again.'));
-        }
-        $categories = $this->Products->Categories->find('list', ['limit' => 200]);
-        $users = $this->Products->Users->find('list', ['limit' => 200]);
-        $statuses = $this->Products->Statuses->find('list', ['limit' => 200]);
-        $this->set(compact('product', 'categories', 'users', 'statuses'));
-    }
 
     /**
      * Edit method

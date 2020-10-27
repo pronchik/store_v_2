@@ -18,12 +18,21 @@ class ActionsController extends AppController
      */
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Products', 'Users'],
-        ];
-        $actions = $this->paginate($this->Actions);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $this->paginate = [
+                'contain' => ['Products', 'Users'],
+            ];
+            $actions = $this->paginate($this->Actions);
 
-        $this->set(compact('actions'));
+            $this->set(compact('actions'));
+            $this->set('_serialize', ['actions']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -35,11 +44,20 @@ class ActionsController extends AppController
      */
     public function view($id = null)
     {
-        $action = $this->Actions->get($id, [
-            'contain' => ['Products', 'Users'],
-        ]);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $action = $this->Actions->get($id, [
+                'contain' => ['Products', 'Users'],
+            ]);
 
-        $this->set(compact('action'));
+            $this->set(compact('action'));
+            $this->set('_serialize', ['action']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -49,19 +67,27 @@ class ActionsController extends AppController
      */
     public function add()
     {
-        $action = $this->Actions->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $action = $this->Actions->patchEntity($action, $this->request->getData());
-            if ($this->Actions->save($action)) {
-                $this->Flash->success(__('The action has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $action = $this->Actions->newEmptyEntity();
+            if ($this->request->is('post')) {
+                $action = $this->Actions->patchEntity($action, $this->request->getData());
+                if ($this->Actions->save($action)) {
+                    $this->Flash->success(__('The action has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The action could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The action could not be saved. Please, try again.'));
+            $products = $this->Actions->Products->find('list', ['limit' => 200]);
+            $users = $this->Actions->Users->find('list', ['limit' => 200]);
+            $this->set(compact('action', 'products', 'users'));
         }
-        $products = $this->Actions->Products->find('list', ['limit' => 200]);
-        $users = $this->Actions->Users->find('list', ['limit' => 200]);
-        $this->set(compact('action', 'products', 'users'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -73,21 +99,29 @@ class ActionsController extends AppController
      */
     public function edit($id = null)
     {
-        $action = $this->Actions->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $action = $this->Actions->patchEntity($action, $this->request->getData());
-            if ($this->Actions->save($action)) {
-                $this->Flash->success(__('The action has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $action = $this->Actions->get($id, [
+                'contain' => [],
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $action = $this->Actions->patchEntity($action, $this->request->getData());
+                if ($this->Actions->save($action)) {
+                    $this->Flash->success(__('The action has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The action could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The action could not be saved. Please, try again.'));
+            $products = $this->Actions->Products->find('list', ['limit' => 200]);
+            $users = $this->Actions->Users->find('list', ['limit' => 200]);
+            $this->set(compact('action', 'products', 'users'));
         }
-        $products = $this->Actions->Products->find('list', ['limit' => 200]);
-        $users = $this->Actions->Users->find('list', ['limit' => 200]);
-        $this->set(compact('action', 'products', 'users'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -99,14 +133,22 @@ class ActionsController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $action = $this->Actions->get($id);
-        if ($this->Actions->delete($action)) {
-            $this->Flash->success(__('The action has been deleted.'));
-        } else {
-            $this->Flash->error(__('The action could not be deleted. Please, try again.'));
-        }
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $this->request->allowMethod(['post', 'delete']);
+            $action = $this->Actions->get($id);
+            if ($this->Actions->delete($action)) {
+                $this->Flash->success(__('The action has been deleted.'));
+            } else {
+                $this->Flash->error(__('The action could not be deleted. Please, try again.'));
+            }
 
-        return $this->redirect(['action' => 'index']);
+            return $this->redirect(['action' => 'index']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 }

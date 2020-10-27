@@ -15,10 +15,14 @@ class ProductsCollection extends FilterCollection{
                 'wildcardAny' => ' ',
                 'fields' => [
                     'name',
-                    'id'
-                ]
-            ]);
-
-
+                ],
+            ])
+            ->value('id')
+            ->value('price')
+            ->value('category_id')
+            ->value('created')
+            ->value('seller_user_id')
+            ->value('buyer_user_id')
+            ->value('status_id');
     }
 }

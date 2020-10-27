@@ -154,8 +154,8 @@ class ProductsTable extends Table
 
             $user->balance = $user->balance - $productId->price; //вычитаем из баланса стоимость продукта
 
-            $seller->balance = $seller->balance + ($productId->price * 0.95);
-            $admin->balance = $admin->balance + ($productId->price * 0.05);
+            $seller->balance += ($productId->price * 0.95);
+            $admin->balance += ($productId->price * 0.05);
 
             $this->save($productId);
             $this->Users->save($user);

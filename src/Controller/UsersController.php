@@ -26,28 +26,6 @@ class UsersController extends AppController
         $this->Authentication->addUnauthenticatedActions(['register']);
     }
 
-    public function index()
-    {
-        $this->paginate = [
-            'contain' => ['Roles'],
-        ];
-        $users = $this->paginate($this->Users);
-
-        $this->set(compact('users'));
-        $this->set('_serialize', ['users']);
-    }
-
-    public function view($id = null)
-    {
-        $user = $this->Users->get($id, [
-            'contain' => ['Roles'],
-        ]);
-
-        $this->set(compact('user'));
-        $this->set('_serialize', ['user']);
-    }
-
-
     public function register() {
         $user = $this->Users->newEmptyEntity();
         $user = $this->Users->patchEntity($user, $this->request->getData());
@@ -57,33 +35,22 @@ class UsersController extends AppController
         if (!$this->Users->save($user)) {
             throw new BadRequestException($user->getErrors());
         }
-        $this->set(compact('user'));
-        $this->set('_serialize', ['user']);
+        $response = 'Successfully registered';
+        $this->set(compact('response'));
+        $this->set('_serialize', ['response']);
     }
 
 
     public function edit($id = null) {
-        $user = $this->Users->get($id, [
-            'contain' => [],
-        ]);
+        $user = $this->Authentication->getResult()->getData();
         $user = $this->Users->patchEntity($user, $this->request->getData());
         if (!$this->Users->save($user)) {
             throw new BadRequestException($user->getErrors());
         }
-        $this->set(compact('user'));
-        $this->set('_serialize', ['user']);
-    }
-
-    /*public function delete($id = null) {
-        $user = $this->Users->get($id);
-        if (!$this->Users->delete($user)) {
-            throw new BadRequestException([], 'Cant delete this');
-        }
-        $response = 'ok';
+        $response = 'Successfully edited';
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
-    }*/
-
+    }
 
 
     public function login() {
@@ -109,9 +76,7 @@ class UsersController extends AppController
     }
 
     public function myAccount(){
-        $user = $this->Users->find('all',  array(
-            'conditions' => array('Users.role_id' => '3'),
-        ));
+        $user = $this->Authentication->getResult()->getData();
 
         $this->set(compact('user'));
         $this->set('_serialize', ['user']);
@@ -132,12 +97,5 @@ class UsersController extends AppController
         $this->set('_serialize', ['response']);
     }
 
-    /*public function register(){
-        //$user = $this->request->getData();
-        $user = $this->Users->register($this->request->getData());
-        $user->email = $this->request->getData('email');
-        $this->set(compact('email'));
-        $this->set('_serialize', ['email']);
-    }*/
 }
 

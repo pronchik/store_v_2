@@ -40,6 +40,6 @@ class Action extends Entity
         'modified' => true,
         'price' => true,
         'product' => true,
-        'user' => true,
+        'action_bonus' => true,
     ];
 }

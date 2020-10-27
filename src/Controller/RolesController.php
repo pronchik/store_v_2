@@ -18,10 +18,18 @@ class RolesController extends AppController
      */
     public function index()
     {
-        $roles = $this->paginate($this->Roles);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $roles = $this->paginate($this->Roles);
 
-        $this->set(compact('roles'));
-        $this->set('_serialize', ['roles']);
+            $this->set(compact('roles'));
+            $this->set('_serialize', ['roles']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -33,11 +41,19 @@ class RolesController extends AppController
      */
     public function view($id = null)
     {
-        $role = $this->Roles->get($id, [
-            'contain' => ['Users'],
-        ]);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $role = $this->Roles->get($id, [
+                'contain' => ['Users'],
+            ]);
 
-        $this->set(compact('role'));
+            $this->set(compact('role'));
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -47,17 +63,25 @@ class RolesController extends AppController
      */
     public function add()
     {
-        $role = $this->Roles->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $role = $this->Roles->patchEntity($role, $this->request->getData());
-            if ($this->Roles->save($role)) {
-                $this->Flash->success(__('The role has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $role = $this->Roles->newEmptyEntity();
+            if ($this->request->is('post')) {
+                $role = $this->Roles->patchEntity($role, $this->request->getData());
+                if ($this->Roles->save($role)) {
+                    $this->Flash->success(__('The role has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The role could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The role could not be saved. Please, try again.'));
+            $this->set(compact('role'));
         }
-        $this->set(compact('role'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -69,19 +93,27 @@ class RolesController extends AppController
      */
     public function edit($id = null)
     {
-        $role = $this->Roles->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $role = $this->Roles->patchEntity($role, $this->request->getData());
-            if ($this->Roles->save($role)) {
-                $this->Flash->success(__('The role has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $role = $this->Roles->get($id, [
+                'contain' => [],
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $role = $this->Roles->patchEntity($role, $this->request->getData());
+                if ($this->Roles->save($role)) {
+                    $this->Flash->success(__('The role has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The role could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The role could not be saved. Please, try again.'));
+            $this->set(compact('role'));
         }
-        $this->set(compact('role'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -93,14 +125,22 @@ class RolesController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $role = $this->Roles->get($id);
-        if ($this->Roles->delete($role)) {
-            $this->Flash->success(__('The role has been deleted.'));
-        } else {
-            $this->Flash->error(__('The role could not be deleted. Please, try again.'));
-        }
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $this->request->allowMethod(['post', 'delete']);
+            $role = $this->Roles->get($id);
+            if ($this->Roles->delete($role)) {
+                $this->Flash->success(__('The role has been deleted.'));
+            } else {
+                $this->Flash->error(__('The role could not be deleted. Please, try again.'));
+            }
 
-        return $this->redirect(['action' => 'index']);
+            return $this->redirect(['action' => 'index']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 }

@@ -116,11 +116,6 @@ class UsersTable extends Table
         return $rules;
     }
 
-    public function register($data){
-        $user = $this->newEntity($data);
-        $this->save($user);
-        return $user;
-    }
     public function updateBalance($user,$amount){
         $user->balance += $amount;
         $this->save($user);

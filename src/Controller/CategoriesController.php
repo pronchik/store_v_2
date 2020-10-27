@@ -18,10 +18,18 @@ class CategoriesController extends AppController
      */
     public function index()
     {
-        $categories = $this->paginate($this->Categories);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $categories = $this->paginate($this->Categories);
 
-        $this->set(compact('categories'));
-        $this->set('_serialize', ['categories']);
+            $this->set(compact('categories'));
+            $this->set('_serialize', ['categories']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -33,11 +41,19 @@ class CategoriesController extends AppController
      */
     public function view($id = null)
     {
-        $category = $this->Categories->get($id, [
-            'contain' => ['Products'],
-        ]);
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $category = $this->Categories->get($id, [
+                'contain' => ['Products'],
+            ]);
 
-        $this->set(compact('category'));
+            $this->set(compact('category'));
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -47,17 +63,25 @@ class CategoriesController extends AppController
      */
     public function add()
     {
-        $category = $this->Categories->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $category = $this->Categories->patchEntity($category, $this->request->getData());
-            if ($this->Categories->save($category)) {
-                $this->Flash->success(__('The category has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $category = $this->Categories->newEmptyEntity();
+            if ($this->request->is('post')) {
+                $category = $this->Categories->patchEntity($category, $this->request->getData());
+                if ($this->Categories->save($category)) {
+                    $this->Flash->success(__('The category has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The category could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The category could not be saved. Please, try again.'));
+            $this->set(compact('category'));
         }
-        $this->set(compact('category'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -69,19 +93,27 @@ class CategoriesController extends AppController
      */
     public function edit($id = null)
     {
-        $category = $this->Categories->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $category = $this->Categories->patchEntity($category, $this->request->getData());
-            if ($this->Categories->save($category)) {
-                $this->Flash->success(__('The category has been saved.'));
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $category = $this->Categories->get($id, [
+                'contain' => [],
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $category = $this->Categories->patchEntity($category, $this->request->getData());
+                if ($this->Categories->save($category)) {
+                    $this->Flash->success(__('The category has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The category could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The category could not be saved. Please, try again.'));
+            $this->set(compact('category'));
         }
-        $this->set(compact('category'));
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 
     /**
@@ -93,14 +125,22 @@ class CategoriesController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $category = $this->Categories->get($id);
-        if ($this->Categories->delete($category)) {
-            $this->Flash->success(__('The category has been deleted.'));
-        } else {
-            $this->Flash->error(__('The category could not be deleted. Please, try again.'));
-        }
+        $user_role_id  = $this->Authentication->getResult()->getData()->get('role_id');
+        if($user_role_id  == 3 ){
+            $this->request->allowMethod(['post', 'delete']);
+            $category = $this->Categories->get($id);
+            if ($this->Categories->delete($category)) {
+                $this->Flash->success(__('The category has been deleted.'));
+            } else {
+                $this->Flash->error(__('The category could not be deleted. Please, try again.'));
+            }
 
-        return $this->redirect(['action' => 'index']);
+            return $this->redirect(['action' => 'index']);
+        }
+        else{
+            $response = 'Access is denied';
+            $this->set(compact('response'));
+            $this->set('_serialize', ['response']);
+        }
     }
 }
