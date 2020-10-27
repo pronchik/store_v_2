@@ -96,6 +96,5 @@ class UsersController extends AppController
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
     }
-
 }
 

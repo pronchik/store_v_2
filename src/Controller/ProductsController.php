@@ -45,10 +45,11 @@ class ProductsController extends AppController
     public function view($id = null)
     {
         $product = $this->Products->get($id, [
-            'contain' => ['Categories', 'Users', 'Statuses', 'Actions'],
+            'contain' => ['Categories', 'BuyerUsers','SellerUsers', 'Statuses', 'Actions'],
         ]);
 
         $this->set(compact('product'));
+        $this->set('_serialize', ['product']);
     }
 
     /**
@@ -99,16 +100,15 @@ class ProductsController extends AppController
 
     public function buyProduct($id){
         $newOwner = $this->Authentication->getResult()->getData();
-        $newOwnerId = $newOwner->get('id');
         $product = $this->Products->get($id, [
-            'contain' => ['Categories', 'Users', 'Statuses', 'Actions'],
+            'contain' => ['Categories', 'SellerUsers','BuyerUsers', 'Statuses', 'Actions'],
         ]);
         $seller = $product->get('user');
         $admin = $this->Users->find()
             ->select(['id','balance'])
             ->where(['Users.role_id' => '3'])
             ->first();
-        $response = $this->Products->changeOwner($product, $newOwnerId,$newOwner,$seller,$admin);
+        $response = $this->Products->changeOwner($product,$newOwner,$seller,$admin);
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
     }

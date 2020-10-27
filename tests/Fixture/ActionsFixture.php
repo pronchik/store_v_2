@@ -25,6 +25,7 @@ class ActionsFixture extends TestFixture
         'created' => ['type' => 'timestampfractional', 'length' => null, 'default' => null, 'null' => false, 'comment' => null, 'precision' => 6],
         'modified' => ['type' => 'timestampfractional', 'length' => null, 'default' => null, 'null' => true, 'comment' => null, 'precision' => 6],
         'price' => ['type' => 'decimal', 'length' => null, 'default' => null, 'null' => false, 'comment' => null, 'precision' => null, 'unsigned' => null],
+        'action_bonus' => ['type' => 'decimal', 'length' => null, 'default' => null, 'null' => false, 'comment' => null, 'precision' => null, 'unsigned' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
             'actions_buyer_user_id_fkey' => ['type' => 'foreign', 'columns' => ['buyer_user_id'], 'references' => ['users', 'id'], 'update' => 'cascade', 'delete' => 'cascade', 'length' => []],
@@ -44,12 +45,13 @@ class ActionsFixture extends TestFixture
             [
                 'id' => 1,
                 'product_id' => 1,
-                'action_date' => 1603183495,
+                'action_date' => 1603808266,
                 'seller_user_id' => 1,
                 'buyer_user_id' => 1,
-                'created' => 1603183495,
-                'modified' => 1603183495,
+                'created' => 1603808266,
+                'modified' => 1603808266,
                 'price' => 1.5,
+                'action_bonus' => 1.5,
             ],
         ];
         parent::init();

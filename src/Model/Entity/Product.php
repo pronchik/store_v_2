@@ -48,10 +48,12 @@ class Product extends Entity
     protected $_hidden = [
         'created' ,
         'modified' ,
-        'user',
+        'seller_user',
+        'buyer_user',
         'actions',
         'category' ,
         'status' ,
         'deleted',
+        'id'
     ];
 }

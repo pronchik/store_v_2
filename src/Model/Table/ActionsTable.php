@@ -13,7 +13,6 @@ use Cake\Validation\Validator;
  *
  * @property \App\Model\Table\ProductsTable&\Cake\ORM\Association\BelongsTo $Products
  * @property \App\Model\Table\UsersTable&\Cake\ORM\Association\BelongsTo $Users
-
  *
  * @method \App\Model\Entity\Action newEmptyEntity()
  * @method \App\Model\Entity\Action newEntity(array $data, array $options = [])
@@ -85,6 +84,11 @@ class ActionsTable extends Table
             ->requirePresence('price', 'create')
             ->notEmptyString('price');
 
+        $validator
+            ->decimal('action_bonus')
+            ->requirePresence('action_bonus', 'create')
+            ->notEmptyString('action_bonus');
+
         return $validator;
     }
 
@@ -103,4 +107,7 @@ class ActionsTable extends Table
 
         return $rules;
     }
+    /*public function action($product_id,$seller_user_id,$buyer_user_id,$price){
+
+    }*/
 }

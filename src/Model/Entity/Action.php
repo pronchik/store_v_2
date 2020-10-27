@@ -16,6 +16,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime|null $modified
  * @property string $price
+ * @property string $action_bonus
  *
  * @property \App\Model\Entity\Product $product
  * @property \App\Model\Entity\User $user
@@ -39,7 +40,8 @@ class Action extends Entity
         'created' => true,
         'modified' => true,
         'price' => true,
-        'product' => true,
         'action_bonus' => true,
+        'product' => true,
+        'user' => true,
     ];
 }

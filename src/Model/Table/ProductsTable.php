@@ -76,15 +76,18 @@ class ProductsTable extends Table
             'foreignKey' => 'category_id',
             'joinType' => 'INNER',
         ]);
-        $this->belongsTo('Users', [
+        $this->belongsTo('SellerUsers', [
             'foreignKey' => 'seller_user_id',
             'joinType' => 'INNER',
+            'className' => 'Users'
         ]);
-        $this->belongsTo('Users', [
+        $this->belongsTo('BuyerUsers', [
             'foreignKey' => 'buyer_user_id',
+            'className' => 'Users'
         ]);
-        $this->belongsTo('Users', [
+        $this->belongsTo('SellerUsers', [
             'foreignKey' => 'seller_user_id',
+            'className' => 'Users'
         ]);
         $this->belongsTo('Statuses', [
             'foreignKey' => 'status_id',
@@ -138,31 +141,39 @@ class ProductsTable extends Table
         return $rules;
     }
 
-    public function changeOwner($productId,$userId,$user,$seller,$admin){
-        if($userId == $productId->seller_user_id){
+    public function changeOwner($product,$newOwner,$seller,$admin){
+        if($newOwner->get('id') == $product->get('seller_user_id')){
             return 'You cant buy your product';
         }
-        elseif ($user->balance < $productId->price){
+        elseif ($newOwner->balance < $product->price){
             return 'You have not enough money';
         }
-        elseif($productId->status_id == 2){
+        elseif($product->status_id == 2){
             return 'This product was sold';
         }
         else{
-            $productId->buyer_user_id = $userId; //
-            $productId->status_id = 2;           // делаем статус 'Sold'
+            $product->buyer_user_id = $newOwner->get('id'); //
+            $product->status_id = 2;           // делаем статус 'Sold'
 
-            $user->balance = $user->balance - $productId->price; //вычитаем из баланса стоимость продукта
+            $newOwner->balance = $newOwner->balance - $product->price; //вычитаем из баланса стоимость продукта
 
-            $seller->balance += ($productId->price * 0.95);
-            $admin->balance += ($productId->price * 0.05);
+            $seller->balance += ($product->price * 0.95);
+            $admin->balance += ($product->price * 0.05);
 
-            $this->save($productId);
-            $this->Users->save($user);
+            $action = $this->Actions->newEmptyEntity();
+            $action->product_id = $product->get('id');
+            $action->action_date = date("F j, Y, g:i a");;
+            $action->seller_user_id = $seller->get('id') ;
+            $action->buyer_user_id = $newOwner->get('id');
+            $action->price = $product->price;
+            $action->action_bonus = $product->price * 0.05;
+            $this->Actions->save($action);
+
+            $this->save($product);
+            $this->Users->save($newOwner);
             $this->Users->save($admin);
             $this->Users->save($seller);
-
-            return 'Вы купили '.$productId->name.' за '.$productId->price;
+            return 'Вы купили '.$product->name.' за '.$product->price;
         }
     }
 
