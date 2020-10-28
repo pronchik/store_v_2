@@ -23,7 +23,7 @@ class UsersSeed extends AbstractSeed
         $data = [
             [
                 'id' => 7,
-                'first_name' => 'Sonya',
+                'first_name' => 'Sonыya',
                 'second_name' => 'Fadeeva',
                 'email' => 's@f.c',
                 'birth_date' => '2007-11-08',
