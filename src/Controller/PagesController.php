@@ -21,4 +21,13 @@ class PagesController extends AppController {
         $this->set(compact('api'));
         $this->set('_serialize', ['api']);
     }
+    public function balance() {
+        $admin = $this->Users->find()
+            ->select(['id','balance'])
+            ->where(['Users.role_id' => '3'])
+            ->first();
+        $adminbalance = $admin->get('balance');
+        $this->set(compact('adminbalance'));
+        $this->set('_serialize', ['adminbalance']);
+    }
 }

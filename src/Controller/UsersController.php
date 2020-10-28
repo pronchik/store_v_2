@@ -35,9 +35,9 @@ class UsersController extends AppController
         if (!$this->Users->save($user)) {
             throw new BadRequestException($user->getErrors());
         }
-        $response = 'Successfully registered';
-        $this->set(compact('response'));
-        $this->set('_serialize', ['response']);
+
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
     }
 
 
@@ -47,9 +47,9 @@ class UsersController extends AppController
         if (!$this->Users->save($user)) {
             throw new BadRequestException($user->getErrors());
         }
-        $response = 'Successfully edited';
-        $this->set(compact('response'));
-        $this->set('_serialize', ['response']);
+
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
     }
 
 
@@ -86,8 +86,8 @@ class UsersController extends AppController
         $user = $this->Authentication->getResult()->getData();
         $amount = $this->request->getData('amount');
         $response = $this->Users->updateBalance($user,$amount);
-        $this->set(compact('response'));
-        $this->set('_serialize', ['response']);
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
     }
 
     public function deleted(){

@@ -76,10 +76,9 @@ class ProductsTable extends Table
             'foreignKey' => 'category_id',
             'joinType' => 'INNER',
         ]);
-        $this->belongsTo('SellerUsers', [
+        $this->belongsTo('Users', [
             'foreignKey' => 'seller_user_id',
             'joinType' => 'INNER',
-            'className' => 'Users'
         ]);
         $this->belongsTo('BuyerUsers', [
             'foreignKey' => 'buyer_user_id',
@@ -134,8 +133,8 @@ class ProductsTable extends Table
     public function buildRules(RulesChecker $rules): RulesChecker
     {
         $rules->add($rules->existsIn(['category_id'], 'Categories'), ['errorField' => 'category_id']);
-        $rules->add($rules->existsIn(['seller_user_id'], 'Users'), ['errorField' => 'seller_user_id']);
-        $rules->add($rules->existsIn(['buyer_user_id'], 'Users'), ['errorField' => 'buyer_user_id']);
+        $rules->add($rules->existsIn(['seller_user_id'], 'SellerUsers'), ['errorField' => 'seller_user_id']);
+        $rules->add($rules->existsIn(['buyer_user_id'], 'BuyerUsers'), ['errorField' => 'buyer_user_id']);
         $rules->add($rules->existsIn(['status_id'], 'Statuses'), ['errorField' => 'status_id']);
 
         return $rules;
@@ -186,6 +185,7 @@ class ProductsTable extends Table
     }
     public function deleted($product,$user){
         if($product->seller_user_id == $user && $product->status_id == 1){
+            $this->Products->delete($product);
             $product->deleted = date("F j, Y, g:i a");
             $this->save($product);
             return 'Deleted';

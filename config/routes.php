@@ -47,6 +47,8 @@ $routes->setRouteClass(DashedRoute::class);
 $routes->scope('/', function (RouteBuilder $builder) {
     $builder->setExtensions(['json']);
     $builder->connect('/', ['controller' => 'Pages', 'action' => 'home']);
+    $builder->connect('/balance', ['controller' => 'Pages', 'action' => 'balance']);
+
     $builder->resources('Users', [
         'map' => [
             'login' => [
@@ -81,8 +83,6 @@ $routes->scope('/', function (RouteBuilder $builder) {
             ]
         ]
     ]);
-    $builder->resources('Roles');
-    $builder->resources('Statuses');
     $builder->resources('Actions');
 
     $builder->resources('Products' ,[

@@ -21,7 +21,7 @@ class ActionsController extends AppController
         $user_role_id = $this->Authentication->getResult()->getData()->get('role_id');
         if ($user_role_id == 3) {
             $this->paginate = [
-                'contain' => ['Products', 'Users'],
+                'contain' => ['Products', 'Users',],
             ];
             $actions = $this->paginate($this->Actions);
 

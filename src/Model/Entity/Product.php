@@ -43,13 +43,13 @@ class Product extends Entity
         'buyer_user_id' => true,
         'status_id' => true,
         'name' => true,
+        'seller_user'=>true,
+        'buyer_user'=>true,
     ];
 
     protected $_hidden = [
         'created' ,
         'modified' ,
-        'seller_user',
-        'buyer_user',
         'actions',
         'category' ,
         'status' ,

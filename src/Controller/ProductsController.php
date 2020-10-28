@@ -25,7 +25,7 @@ class ProductsController extends AppController
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Categories', 'Users', 'Statuses'],
+            'contain' => ['Categories', 'SellerUsers', 'BuyerUsers', 'Statuses'],
         ];
         $products = $this->paginate($this->Products
             ->find('search', ['search' => $this->request->getQueryParams()]));
@@ -68,7 +68,7 @@ class ProductsController extends AppController
     public function edit($id = null)
     {
         $product = $this->Products->get($id, [
-            'contain' => [],
+            'contain' => ['Categories', 'BuyerUsers','SellerUsers', 'Statuses', 'Actions'],
         ]);
         $product = $this->Products->patchEntity($product,$this->request->getData());
         if (!$this->Products->save($product)) {
@@ -103,7 +103,7 @@ class ProductsController extends AppController
         $product = $this->Products->get($id, [
             'contain' => ['Categories', 'SellerUsers','BuyerUsers', 'Statuses', 'Actions'],
         ]);
-        $seller = $product->get('user');
+        $seller = $product->get('seller_user');
         $admin = $this->Users->find()
             ->select(['id','balance'])
             ->where(['Users.role_id' => '3'])
@@ -116,7 +116,6 @@ class ProductsController extends AppController
     public function create(){
         $ownerId = $this->Authentication->getResult()->getData()->get('id');
         $product = $this->Products->createProduct($this->request->getData(), $ownerId);
-        $error = $product->getErrors();
         $this->set(compact('product'));
         $this->set('_serialize', ['product']);
     }
@@ -124,7 +123,7 @@ class ProductsController extends AppController
     public function deleted($id){
         $userId = $this->Authentication->getResult()->getData()->get('id');
         $product = $this->Products->get($id, [
-            'contain' => ['Categories', 'Users', 'Statuses', 'Actions'],
+            'contain' => ['Categories', 'SellerUsers','BuyerUsers', 'Statuses', 'Actions'],
         ]);
         $response = $this->Products->deleted($product,$userId);
         $this->set(compact('response'));
