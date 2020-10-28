@@ -26,8 +26,8 @@ class PagesController extends AppController {
             ->select(['id','balance'])
             ->where(['Users.role_id' => '3'])
             ->first();
-        $adminbalance = $admin->get('balance');
-        $this->set(compact('adminbalance'));
-        $this->set('_serialize', ['adminbalance']);
+        $adminBalance = $admin->get('balance');
+        $this->set(compact('adminBalance'));
+        $this->set('_serialize', ['adminBalance']);
     }
 }

@@ -60,18 +60,6 @@ class ProductsTable extends Table
             'collectionClass' => ProductsCollection::class
             ]);
 
-        /*$this->searchManager()
-            ->value('status_id')
-            ->add('q', 'Search.Like', [
-                'before' => true,
-                'after' => true,
-                'fieldMode' => 'OR',
-                'comparison' => 'LIKE',
-                'wildcardAny' => '*',
-                'wildcardOne' => '?',
-                'fields' => ['id', 'price'],
-            ]);*/
-
         $this->belongsTo('Categories', [
             'foreignKey' => 'category_id',
             'joinType' => 'INNER',
@@ -172,7 +160,7 @@ class ProductsTable extends Table
             $this->Users->save($newOwner);
             $this->Users->save($admin);
             $this->Users->save($seller);
-            return 'Вы купили '.$product->name.' за '.$product->price;
+            return $product;
         }
     }
 
@@ -188,7 +176,7 @@ class ProductsTable extends Table
             $this->Products->delete($product);
             $product->deleted = date("F j, Y, g:i a");
             $this->save($product);
-            return 'Deleted';
+            return $product;
         }
         else{
             return 'NOT Deleted';

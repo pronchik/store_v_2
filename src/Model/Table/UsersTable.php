@@ -125,7 +125,9 @@ class UsersTable extends Table
 
     public function deleted($user){
         $user->deleted = date("F j, Y, g:i a");
-        $this->save($user);
-        return 'Deleted';
+        if($this->save($user)){
+            return $user;
+        };
+        return 'Error';
     }
 }
