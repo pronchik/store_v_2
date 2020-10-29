@@ -19,16 +19,7 @@ class ProductsCollection extends FilterCollection{
             ])
             ->value('price')
             ->value('category_id')
-            ->like('created',[
-                'before' => true,
-                'after' => true,
-                'fieldMode' => 'AND',
-                'comparison' => 'LIKE',
-                'wildcardAny' => ' ',
-                'fields' => [
-                    'created',
-                ],
-            ])
+            ->value('created')
             ->value('seller_user_id')
             ->value('buyer_user_id')
             ->value('status_id');
